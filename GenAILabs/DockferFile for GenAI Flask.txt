@@ -1,0 +1,34 @@
+#This is the dockerfile used for the Deploy phase.
+
+export GCP_PROJECT='qwiklabs-gcp-03-7001f274d75c'  
+export GCP_REGION='us-central1'
+export AR_REPO='cymbal-web-ui-app-repo'
+export SERVICE_NAME='cymbal-web-service'
+export IMAGE_NAME='cymbal-web-app1'
+
+export IMAGE_NAME='cymbal-web-app3'
+docker build -t "$GCP_REGION-docker.pkg.dev/$GCP_PROJECT/$AR_REPO/$IMAGE_NAME" .
+
+docker push "$GCP_REGION-docker.pkg.dev/$GCP_PROJECT/$AR_REPO/$IMAGE_NAME"
+
+gcloud run deploy "$SERVICE_NAME" \
+  --port=8080 \
+  --image="$GCP_REGION-docker.pkg.dev/$GCP_PROJECT/$AR_REPO/$IMAGE_NAME" \
+  --allow-unauthenticated \
+  --region=$GCP_REGION \
+  --platform=managed \
+  --project=$GCP_PROJECT \
+  --set-env-vars=GCP_PROJECT=$GCP_PROJECT,GCP_REGION=$GCP_REGION
+
+
+export IMAGE_NAME='cymbal-web-app3'
+
+## Install dependencies and virtual environment activation
+python3 -m venv venv
+source venv/bin/activate
+
+
+pip install -r requirements.txt
+
+cd gen-ai-assessment
+python3 main.py
